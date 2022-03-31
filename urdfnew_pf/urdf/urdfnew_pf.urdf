@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="urdfnew_pf">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.186508495381294 1.81772656870915E-07 0.0999706595808322"
+        rpy="0 0 0" />
+      <mass
+        value="1.72484857008382" />
+      <inertia
+        ixx="0.0839794443820299"
+        ixy="6.61177187979311E-08"
+        ixz="0.00555845346259"
+        iyy="0.0945379296317336"
+        iyz="-1.76866442207592E-08"
+        izz="0.134635937117221" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="IR">
+    <inertial>
+      <origin
+        xyz="0.005 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.00176714586764426" />
+      <inertia
+        ixx="4.97009775274948E-08"
+        ixy="6.89317177127515E-26"
+        ixz="1.10290748340404E-24"
+        iyy="3.95767043274496E-08"
+        iyz="3.10192729707386E-25"
+        izz="3.95767043274496E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/IR.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/IR.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="IR"
+    type="fixed">
+    <origin
+      xyz="0.0965000000000001 0 -0.022"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="IR" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="laser_link">
+    <inertial>
+      <origin
+        xyz="0 5.55111512312578E-17 -0.034075"
+        rpy="0 0 0" />
+      <mass
+        value="0.0245515465878043" />
+      <inertia
+        ixx="1.31093443347079E-05"
+        ixy="0"
+        ixz="-2.04418086133976E-21"
+        iyy="1.31093443347079E-05"
+        iyz="2.43581130536868E-38"
+        izz="1.22757732939021E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/laser_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/laser_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="laser_link"
+    type="fixed">
+    <origin
+      xyz="-0.2735 0 0.34115"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="laser_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="camera_link">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.00254469004940768" />
+      <inertia
+        ixx="1.03059947001011E-07"
+        ixy="5.19246933075386E-24"
+        ixz="-1.21036978592635E-23"
+        iyy="7.27357239122352E-08"
+        iyz="-6.58783796960209E-40"
+        izz="7.27357239122352E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/camera_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/camera_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="camera_link"
+    type="fixed">
+    <origin
+      xyz="-0.095 0 0.22965902599155"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="camera_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="IMU_link">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.00299999999999996" />
+      <inertia
+        ixx="1.06249999999999E-07"
+        ixy="-3.40867840322235E-22"
+        ixz="-6.82005583881383E-22"
+        iyy="3.24999999999997E-07"
+        iyz="-2.21591184009676E-22"
+        izz="2.31249999999998E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/IMU_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/IMU_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="IMU_link"
+    type="fixed">
+    <origin
+      xyz="-0.11 0 0.22965902599155"
+      rpy="-1.5707963267949 0 -1.5707963267949" />
+    <parent
+      link="base_link" />
+    <child
+      link="IMU_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="w_r_link">
+    <inertial>
+      <origin
+        xyz="0 0 5.55111512312578E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.646775387557798" />
+      <inertia
+        ixx="0.00098172742526623"
+        ixy="-2.03641789459831E-19"
+        ixz="3.30681662608079E-20"
+        iyy="0.00181905577750631"
+        iyz="-9.09814762263548E-20"
+        izz="0.00098172742526623" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/w_r_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/w_r_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="w_r_joint"
+    type="continuous">
+    <origin
+      xyz="0 -0.2173 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="w_r_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="w_l_link">
+    <inertial>
+      <origin
+        xyz="0 0 5.55111512312578E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.646775387557799" />
+      <inertia
+        ixx="0.000981727425266231"
+        ixy="1.3350021162692E-19"
+        ixz="1.40539706608434E-19"
+        iyy="0.00181905577750631"
+        iyz="3.91109767734517E-21"
+        izz="0.000981727425266231" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/w_l_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/w_l_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="w_l_joint"
+    type="continuous">
+    <origin
+      xyz="0 0.2173 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="w_l_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="castor_link">
+    <inertial>
+      <origin
+        xyz="0 0 5.55111512312578E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.0654498469497874" />
+      <inertia
+        ixx="1.63624617374469E-05"
+        ixy="3.39061905195349E-22"
+        ixz="-3.42210418674171E-22"
+        iyy="1.63624617374469E-05"
+        iyz="7.92122337092385E-23"
+        izz="1.63624617374468E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/castor_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/castor_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="castor_joint"
+    type="continuous">
+    <origin
+      xyz="-0.455 0 -0.0501999999999999"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="castor_link" />
+    <axis
+      xyz="1 0 0" />
+  </joint>
+  <link
+    name="ultrasonic_link">
+    <inertial>
+      <origin
+        xyz="0.00499999999999989 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.00176714586764422" />
+      <inertia
+        ixx="4.97009775274937E-08"
+        ixy="-5.51453741702006E-25"
+        ixz="-7.10215052999282E-41"
+        iyy="3.95767043274481E-08"
+        iyz="1.1546062716886E-24"
+        izz="3.95767043274481E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/ultrasonic_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://urdfnew_pf/meshes/ultrasonic_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="ultrasonic_link"
+    type="continuous">
+    <origin
+      xyz="-0.4865 0 -0.0166000000000001"
+      rpy="1.5707963267949 0 3.14159265358979" />
+    <parent
+      link="base_link" />
+    <child
+      link="ultrasonic_link" />
+    <axis
+      xyz="1 0 0" />
+  </joint>
+<gazebo reference="laser_link">
+<sensor type="ray" name="head_hokuyo_sensor">
+<pose>0 0 0 0 0 0</pose>
+<visualize>false</visualize>
+<update_rate>40</update_rate>
+<ray>
+<scan>
+<horizontal>
+<samples>720</samples>
+<resolution>1</resolution>
+<min_angle>0</min_angle>
+<max_angle>6.28</max_angle>
+</horizontal>
+</scan>
+<range>
+<min>0.05</min>
+<max>6.0</max>
+<resolution>0.05</resolution>
+</range>
+<noise>
+<type>gaussian</type>
+<!--  Noise parameters based on published spec for Hokuyo laser
+               achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+               stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+               reading.  -->
+<mean>0.0</mean>
+<stddev>0.0</stddev>
+</noise>
+</ray>
+<plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+<topicName>/scan</topicName>
+<frameName>laser_link</frameName>
+</plugin>
+</sensor>
+</gazebo>
+<!--       IMU_LINK                -->
+<gazebo>
+<plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
+<alwaysOn>true</alwaysOn>
+<bodyName>IMU_link</bodyName>
+<frameName>IMU_link</frameName>
+<topicName>imu_data</topicName>
+<gaussianNoise>0.0</gaussianNoise>
+<updateRate>200</updateRate>
+<imu>
+<noise>
+<type>gaussian</type>
+<rate>
+<mean>0.0</mean>
+<stddev>2e-4</stddev>
+<bias_mean>0.0000075</bias_mean>
+<bias_stddev>0.0000008</bias_stddev>
+</rate>
+<accel>
+<mean>0.0</mean>
+<stddev>1.7e-2</stddev>
+<bias_mean>0.1</bias_mean>
+<bias_stddev>0.001</bias_stddev>
+</accel>
+</noise>
+</imu>
+</plugin>
+</gazebo>
+
+<!--       CAMERA_LINK                -->
+ <gazebo reference="camera_link">
+  <sensor name="camera_link" type="depth">
+    <update_rate>20</update_rate>
+    <camera>
+      <horizontal_fov>1.047198</horizontal_fov>
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.05</near>
+        <far>3</far>
+      </clip>
+    </camera>
+    <plugin name="camera_link_controller" filename="libgazebo_ros_openni_kinect.so">
+      <baseline>0.2</baseline>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>1.0</updateRate>
+      <cameraName>camera</cameraName>
+      <imageTopicName>/camera/color/image_raw</imageTopicName>
+      <cameraInfoTopicName>/camera/color/camera_info</cameraInfoTopicName>
+      <depthImageTopicName>/camera/depth/image_raw</depthImageTopicName>
+      <depthImageInfoTopicName>/camera_name/depth/camera_info</depthImageInfoTopicName>
+      <pointCloudTopicName>/camera/depth/points</pointCloudTopicName>
+      <frameName>camera_link</frameName>
+      <pointCloudCutoff>0.5</pointCloudCutoff>
+      <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+      <distortionK1>0.00000001</distortionK1>
+      <distortionK2>0.00000001</distortionK2>
+      <distortionK3>0.00000001</distortionK3>
+      <distortionT1>0.00000001</distortionT1>
+      <distortionT2>0.00000001</distortionT2>
+      <CxPrime>0</CxPrime>
+      <Cx>0</Cx>
+      <Cy>0</Cy>
+      <focalLength>0</focalLength>
+      <hackBaseline>0</hackBaseline>
+    </plugin>
+  </sensor>
+</gazebo>
+
+
+<!--     LEFT AND RIGHT WHEEL CONTROLLER  -->
+<transmission name="transmission_joint_right">
+<type>transmission_interface/SimpleTransmission</type>
+<joint name="w_r_joint">
+<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+</joint>
+<actuator name="actuator_joint_right">
+<mechanicalReduction>7</mechanicalReduction>
+<hardwareInterface>VelocityJointInterface</hardwareInterface>
+</actuator>
+</transmission>
+<transmission name="transmission_joint_left">
+<type>transmission_interface/SimpleTransmission</type>
+<joint name="w_r_joint">
+<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+</joint>
+<actuator name="actuator_joint_left">
+<mechanicalReduction>7</mechanicalReduction>
+<hardwareInterface>VelocityJointInterface</hardwareInterface>
+</actuator>
+</transmission>
+<!--    WHEEL PLUGIN      -->
+<gazebo>
+<plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+<alwaysOn>true</alwaysOn>
+<legacyMode>false</legacyMode>
+<updateRate>40</updateRate>
+<leftJoint>w_l_joint</leftJoint>
+<rightJoint>w_r_joint</rightJoint>
+<wheelSeparation>0.440</wheelSeparation>
+<wheelDiameter>0.150</wheelDiameter>
+<wheelTorque>80</wheelTorque>
+<commandTopic>/cmd_vel</commandTopic>
+<odometryTopic>/odom</odometryTopic>
+<odometryFrame>odom</odometryFrame>
+<odometrySource>world</odometrySource>
+<wheelAcceleration>0.0</wheelAcceleration>
+<publishTf>true</publishTf>
+<publishWheelJointState>true</publishWheelJointState>
+<robotBaseFrame>base_link</robotBaseFrame>
+<publishWheelTF>false</publishWheelTF>
+<rosDebugLevel>na</rosDebugLevel>
+<!--<odometrySource>encoder</odometrySource>-->
+</plugin>
+</gazebo>
+
+
+
+
+
+  
+</robot>

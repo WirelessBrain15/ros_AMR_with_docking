@@ -1,0 +1,1 @@
+controller_joint_names: ['', 'w_r_joint', 'w_l_joint', 'castor_joint', 'ultrasonic_link', ]
