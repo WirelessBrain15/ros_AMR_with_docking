@@ -35,8 +35,6 @@
     
     <node name="differential_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="urdfnew_pf"  args="differential_controller w_r_joint_velocity_controller w_l_joint_velocity_controller joint_state_controller "/> -->  
 
-
-   
     
 
     
