@@ -2,23 +2,285 @@
 
 import rospy
 import numpy as np
-from sensor_msgs.msg import LaserScan
-import math
+from math import pow, atan2, sqrt, degrees, radians, cos, sin
 import tf
-from geometry_msgs.msg import PoseStamped
-#from time import time
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import PointStamped, Point, Twist, Pose, PoseStamped
+from visualization_msgs.msg import Marker
+from sympy import symbols, Eq, solve
+import actionlib
+
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 class chargingDock:
-    flag2 = True
-    trans = []
-    rot = []
-    def listener(self):
-        dock_sub = rospy.Subscriber("/scan", LaserScan, chargingDock().callBack)
-        rospy.spin()
+    
+    range_mid = 0
+    def __init__(self):
+        self.flag1 = True
+        self.flag2 = False
+        self.flag3 = False
+        self.flag4 = False
+        self.flag5 = False
+        self.angle_mid = 0
+        self.angle1 = 0
+        self.angle2 = 0
+        self.avgRange1 = 0
+        self.avgRange2 = 0
+        self.new = PointStamped()
+        self.pt1 = PointStamped()
+        self.pt2 = PointStamped()
+        self.dest = PoseStamped()
+        self.slope = 0
+        self.radius = 2
+        self.sol = {}
+        self.mark = []
+        self.pose = PoseStamped()
+        dock_sub = rospy.Subscriber("/scan", LaserScan, self.callBack)
+        pose_sub = rospy.Subscriber("/odom", Odometry, self.update_pose)
+        self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        self.marker_publisher = rospy.Publisher('visualization_marker', Marker, queue_size=10)
 
     def cosineRule(self, a, b, angle):
-        c2 = a*a + b*b - 2*a*b*math.cos(angle)
-        return math.sqrt(c2)
+        c2 = a*a + b*b - 2*a*b*cos(angle)
+        return sqrt(c2)
+    
+    def update_pose(self, data):
+        self.pose.header.frame_id = data.header.frame_id
+        self.pose.pose = data.pose.pose
+
+    # def linear_vel(self, goal_pose):
+    #     return 1*self.euclidean_distance(goal_pose)
+
+    # def steering_angle(self, goal_pose):
+    #     return atan2(goal_pose.position.y - self.pose.pose.position.y, goal_pose.position.x - self.pose.pose.position.x)
+
+    # def angular_vel(self, goal_pose, constant=6):
+        # return constant * (self.steering_angle(goal_pose) - self.pose.pose.orientation.z)
+
+    def distance(self, x1, y1, x2, y2):
+        return sqrt(pow((x2 - x1),2) + pow((y2 - y1),2))
+
+    # def euclidean_distance(self, goal_pose):
+    #     return sqrt(pow((goal_pose.position.x - self.pose.pose.position.x), 2) + pow((goal_pose.position.y - self.pose.pose.position.y), 2))
+
+    # def move_to_goal(self, x, y):
+    #     goal_pose = Pose()
+    #     goal_pose.position.x = x
+    #     goal_pose.position.y = y
+    #     distance_tolerance = 0.01      #ooga booga
+
+    #     vel_msg = Twist()
+    #     if self.euclidean_distance(goal_pose) >= distance_tolerance:
+    #         # Linear velocity in the x-axis.
+    #         vel_msg.linear.x = self.linear_vel(goal_pose)
+    #         vel_msg.linear.y = 0
+    #         vel_msg.linear.z = 0
+
+    #         # Angular velocity in the z-axis.
+    #         vel_msg.angular.x = 0
+    #         vel_msg.angular.y = 0
+    #         vel_msg.angular.z = 0 #self.angular_vel(goal_pose)
+
+    #         # Publishing our vel_msg
+    #         # self.velocity_publisher.publish(vel_msg)
+
+    #         # Publish at the desired rate.
+    #         # self.rate.sleep()
+
+    #     # Stopping our robot after the movement is over.
+    #     else:
+    #         vel_msg.linear.x = 0
+    #         vel_msg.angular.z = 0
+    #         # self.velocity_publisher.publish(vel_msg)
+
+    def move_base_client(self, pose):
+        client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+
+        client.wait_for_server()
+
+        goal = MoveBaseGoal()
+        goal.target_pose.header.frame_id = "map"
+        goal.target_pose.header.stamp = rospy.Time.now()
+
+        # moving bot
+        goal.target_pose.pose.position.x = pose.position.x
+        goal.target_pose.pose.position.y = pose.position.y 
+
+
+        goal.target_pose.pose.orientation.x = pose.orientation.x
+        goal.target_pose.pose.orientation.y = pose.orientation.y
+        goal.target_pose.pose.orientation.z = pose.orientation.z
+        goal.target_pose.pose.orientation.w = pose.orientation.w
+
+        client.send_goal(goal)
+
+        wait = client.wait_for_result()
+
+        if not wait:
+            print "Action server not available"
+            rospy.signal_shutdown()
+        else:
+            return client.get_result()
+
+    def rot_conversion(self, roll, pitch, yaw, pose, flag):
+        if flag == True:    # Euler to quaternion
+            quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+            pose = Pose()
+            pose.orientation.x = quaternion[0]
+            pose.orientation.y = quaternion[1]
+            pose.orientation.z = quaternion[2]
+            pose.orientation.w = quaternion[3]
+
+            return pose
+        else:   # Quaternion to euler
+            quaternion = (pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w)
+            euler = tf.transformations.euler_from_quaternion(quaternion)
+            roll = euler[0]
+            pitch = euler[1]
+            yaw = euler[2]
+
+            return roll, pitch, yaw
+
+    def calculate_point(self, xm, ym, slope, radius):
+        x, y = symbols('x y')
+        eq1 = Eq(((xm - x)/slope) + ym - y)
+        eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2)
+        sol = solve((eq1, eq2), (x,y))
+        return sol
+
+    def get_transform(self, mid):
+        tfListener = tf.TransformListener()
+        # while self.flag1 == True:
+        if mid.header.frame_id != "":
+            # print "spaghet" 
+            tfListener.waitForTransform(mid.header.frame_id, 'map', rospy.Time(), rospy.Duration(0.5))
+            try:
+                now = rospy.Time.now()
+                tfListener.waitForTransform(mid.header.frame_id, 'map', now, rospy.Duration(0.1))
+                # print "carbonara"
+                # (trans, rot) = tfListener.lookupTransform('map',mid.header.frame_id, now)
+                # print trans, rot
+                if tfListener.canTransform(mid.header.frame_id, 'map', now):
+                    # print "linguini"
+                    now = rospy.Time.now()
+                    tfListener.waitForTransform(mid.header.frame_id, 'map', now, rospy.Duration(0.1))
+                    mid.header.stamp = now
+                    new = tfListener.transformPoint('map', mid)
+                    self.flag1 = False
+                    # print "lasagne"
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                # continue
+                pass
+        return new
+
+    def transform_pose(self, pose):
+        tfListener = tf.TransformListener()
+        if pose.header.frame_id != "":
+            tfListener.waitForTransform(pose.header.frame_id, '/base_link', rospy.Time(), rospy.Duration(0.5))
+            try:
+                now = rospy.Time.now()
+                tfListener.waitForTransform(pose.header.frame_id, '/base_link', now, rospy.Duration(0.1))
+                if tfListener.canTransform(pose.header.frame_id, '/base_link', now):
+                    now = rospy.Time.now()
+                    tfListener.waitForTransform(pose.header.frame_id, '/base_link', now, rospy.Duration(0.1))
+                    pose.header.stamp = now
+                    new = tfListener.transformPose('/base_link', pose)
+            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+                pass
+        return new
+
+    # def show_point_in_rviz(self, xm, ym, x1, y1, x2, y2):
+    def show_point_in_rviz(self, xm, ym, x1, y1):
+        marker = Marker()
+        pt = Point()
+        pt.x = xm
+        pt.y = ym
+        pt.z = 0.4
+        marker.points.append(pt)
+        pt = Point()
+        pt.x = x1
+        pt.y = y1
+        pt.z = 0.4
+        marker.points.append(pt)
+        # pt = Point()
+        # pt.x = x2
+        # pt.y = y2
+        # pt.z = 0.5
+        # marker.points.append(pt)
+        marker.type = Marker.POINTS
+        marker.id = 0
+        marker.action = marker.ADD
+        marker.scale.x = 0.05
+        marker.scale.y = 0.05
+        marker.scale.z = 0.05
+        marker.header.frame_id = 'map'
+        marker.header.stamp = rospy.Time.now()
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+        marker.color.a= 0.8
+        marker.lifetime = rospy.Duration(0)##
+
+        # return marker
+        self.marker_publisher.publish(marker)
+
+    def move_to_dest(self, mid, coor1, coor2):
+        self.new = self.get_transform(mid)
+        # self.mark.append(self.show_point_in_rviz(self.new.point.x, self.new.point.y))
+        # print "Cheesecake"
+        self.pt1 = self.get_transform(coor1)
+        self.pt2 = self.get_transform(coor2)
+        # self.dest = self.transform_pose(self.pose)
+        # print "Croquette"
+        # print self.pose
+        # print self.dest
+
+        # Global slope
+        self.slope = (self.pt2.point.y - self.pt1.point.y)/(self.pt2.point.x - self.pt1.point.x)
+
+        # destination to line up
+        self.sol = self.calculate_point(self.new.point.x, self.new.point.y, self.slope, self.radius)
+
+        if (self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[0][0], self.sol[0][1]) < self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[1][0], self.sol[1][1])):
+            x = self.sol[0][0]
+            y = self.sol[0][1]
+            # print "cabbage"
+
+        else:
+            x = self.sol[1][0]
+            y = self.sol[1][1]
+            # print "celery"
+        
+        print "Destination : ", x, y
+        self.show_point_in_rviz(self.new.point.x, self.new.point.y, x, y)
+        temp_pose = Pose()
+        temp_pose.position.x = x
+        temp_pose.position.y = y
+        temp_pose.orientation.z = 0
+        temp_pose.orientation.w = 1
+        result = self.move_base_client(temp_pose)
+        if result:
+            self.flag2 = True
+            return x,y
+
+    def steering(self, x, y):
+        roll,pitch,yaw = self.rot_conversion(0,0,0,self.pose.pose,False) # Roll,pitch,yaw,pose,flag
+        print "roll, pitch, yaw : ",degrees(roll), degrees(pitch), degrees(yaw)
+        print "angle mid : ",degrees(self.angle_mid)
+        if degrees(self.angle_mid) > 180:
+            self.angle_mid = self.angle_mid - 6.28
+
+        yaw = self.angle_mid#abs(6.28 - yaw - 3.14) - 1.57
+        print degrees(yaw)
+        temp_pose = self.rot_conversion(roll,pitch,yaw,0,True)
+        # print temp_pose
+        temp_pose.position.x = x
+        temp_pose.position.y = y
+        result2 = self.move_base_client(temp_pose)
+        if result2:
+            print "done"
+            self.flag2 = False
 
     def callBack(self, data):
         range1 = []
@@ -26,9 +288,11 @@ class chargingDock:
         index1 = []
         index2 = []
         flag = True
-        coor1 = PoseStamped()
-        coor2 = PoseStamped()
-        tfListener = tf.TransformListener()
+        coor1 = PointStamped()
+        coor2 = PointStamped()
+        mid = PointStamped()
+        temp_pose = Pose()
+        # tfListener = tf.TransformListener()
         cDarray = np.array(data.intensities, dtype=np.float32)  # Intensity
         rangeArray = np.array(data.ranges, dtype=np.float32)    # Ranges
         for index, value in enumerate(cDarray):
@@ -42,48 +306,75 @@ class chargingDock:
                 if flag == True and cDarray[index+1] - cDarray[index] < 0:
                     flag = False
 
+        # mid point
+        index_mid = (index1[0] + index2[-1])/2
+        chargingDock.range_mid = rangeArray[index_mid]
+
         # Calculating angles in radians # (data.angle_min +)
-        angle1 = (sum(index1)/len(index1))*data.angle_increment   
-        angle2 = (sum(index2)/len(index2))*data.angle_increment
-        theta = angle2 - angle1 # angle btw ranges1 & 2 (radians)
+        self.angle1 = (sum(index1)/len(index1))*data.angle_increment   
+        self.angle2 = (sum(index2)/len(index2))*data.angle_increment
+        self.angle_mid = (index_mid)*data.angle_increment
+        theta = self.angle2 - self.angle1 # angle btw ranges1 & 2 (radians)
+        print "angle_mid : ", degrees(self.angle_mid)
 
         # Distance between strips
-        avgRange1 = sum(range1)/len(range1)
-        avgRange2 = sum(range2)/len(range2)
-        dist = chargingDock().cosineRule(avgRange1, avgRange2, theta)
+        self.avgRange1 = sum(range1)/len(range1)
+        self.avgRange2 = sum(range2)/len(range2)
+        dist = self.cosineRule(self.avgRange1, self.avgRange2, theta)
 
         # Coordinates of strips
-        coor1.pose.position.x = avgRange1*math.cos(angle1)
-        coor1.pose.position.y = avgRange1*math.sin(angle1)
-        coor2.pose.position.x  = avgRange2*math.cos(angle2)
-        coor2.pose.position.y  = avgRange2*math.sin(angle2)
+        coor1.point.x = self.avgRange1*cos(self.angle1)
+        coor1.point.y = self.avgRange1*sin(self.angle1)
+        coor1.header.frame_id = '/laser_link'
+        coor1.header.stamp = rospy.Time.now()
+
+        coor2.point.x  = self.avgRange2*cos(self.angle2)
+        coor2.point.y  = self.avgRange2*sin(self.angle2)
+        coor2.header.frame_id = '/laser_link'
+        coor2.header.stamp = rospy.Time.now()
 
         # Coordinate of dock
-        while chargingDock.flag2 == True:
-            try:
-                (chargingDock.trans, chargingDock.rot) = tfListener.lookupTransform('/laser_link', '/base_link', rospy.Time(0))
-                chargingDock.flag2 = False
-            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-                continue
+        mid.point.x = chargingDock.range_mid*cos(self.angle_mid)
+        mid.point.y = chargingDock.range_mid*sin(self.angle_mid)
+    
+        mid.header.frame_id = '/laser_link'
+        mid.header.stamp = rospy.Time.now()
 
-        print "trans : ", chargingDock.trans
-        print "rot : ", chargingDock.rot
+        # Transform laser_link to map
+        if self.flag1 == True:
+            x,y = self.move_to_dest(mid, coor1, coor2)
+            
+            
+        if self.flag2 == True:
+            self.steering(x,y)
+
+
         
-        print "dist btw : ", dist
-        print "ranges : ", avgRange1, avgRange2
-        #print range1, range2
-        print "angles : ", math.degrees(angle1), math.degrees(angle2)
-        print "x1, y1  : ", coor1.pose.position.x, coor1.pose.position.y 
-        print "x2, y2  : ", coor2.pose.position.x, coor2.pose.position.y
 
+        # Print
+        # print self.flag2
+        roll,pitch,yaw = self.rot_conversion(0,0,0,self.pose.pose,False)
+        # print "yaw", degrees(yaw)
+        # print rospy.Time.now() - mid.header.stamp
+        # print "dist btw : ", dist 
+        # print "coor1 x,y : ", coor1.point.x, coor1.point.y
+        # print "coor2 x,y : ", coor2.point.x, coor2.point.y
+        # print "ranges : ", self.avgRange1, self.avgRange2
+        # print "range_mid : ", chargingDock.range_mid
+        # print "angle_mid : ", degrees(self.angle_mid)
+        # print "mid. x,y : ", mid.point.x, mid.point.y
+        # print "mid global x,y : ", self.new.point.x, self.new.point.y
+        # print "slope : ", self.slope
+        # print "angles : ", degrees(self.angle1), degrees(self.angle2)
+        # print "sep : ", degrees(self.angle2 - self.angle1)
 
 def main():
     rospy.init_node('charging_dock')
-    cD = chargingDock()
     
     while not rospy.is_shutdown():
         try:
-            cD.listener()
+            cD = chargingDock()
+            rospy.spin()    
         except KeyboardInterrupt:
             print "Shutting down"
 
