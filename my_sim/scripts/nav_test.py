@@ -21,9 +21,6 @@ class chargingDock:
     def __init__(self):
         self.flag1 = False
         self.flag2 = False
-        self.flag3 = False
-        self.flag4 = False
-        self.flag5 = False
         self.angle_mid = 0
         self.angle1 = 0
         self.angle2 = 0
@@ -33,18 +30,18 @@ class chargingDock:
         self.new = PointStamped()
         self.pt1 = PointStamped()
         self.pt2 = PointStamped()
-        self.dest = [0,0]
         self.slope = 0
         self.radius = 1
         self.sol = {}
         self.mark = []
+        self.constant = 20
+        # self.constant = 0.9
+        self.rate = rospy.Rate(20)
         self.pose = PoseStamped()
         dock_sub = rospy.Subscriber("/scan", LaserScan, self.callBack, queue_size=1)
         pose_sub = rospy.Subscriber("/odom", Odometry, self.update_pose, queue_size=1)
         self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.marker_publisher = rospy.Publisher('visualization_marker', Marker, queue_size=10)
-        # self.thread1 = Thread(target = self.move_to_dest, args = ())
-        # self.thread2 = Thread(target = self.steering, args = (self.dest[0],self.dest[1]))
 
     def cosineRule(self, a, b, angle):
         c2 = a*a + b*b - 2*a*b*cos(angle)
@@ -55,44 +52,65 @@ class chargingDock:
         self.pose.pose = data.pose.pose
 
     def linear_vel(self):
-        return 0.25*(self.range_mid)
+        return 0.8*(self.range_mid)
 
-    def angular_vel(self, constant=50):
-        return constant * (self.avgRange1 - self.avgRange2)
+    def angular_vel(self):
+        return self.constant * (self.avgRange1 - self.avgRange2)
+        # return -self.constant * (self.angle_mid - 3.14159)
 
     def distance(self, x1, y1, x2, y2):
         return sqrt(pow((x2 - x1),2) + pow((y2 - y1),2))
 
-    # def euclidean_distance(self, goal_pose):
-    #     return sqrt(pow((goal_pose.position.x - self.pose.pose.position.x), 2) + pow((goal_pose.position.y - self.pose.pose.position.y), 2))
-
-    def move_to_dock(self, radius):
+    def move_to_dock(self, radius): # Docking algo
+        rospy.sleep(1)
         vel_msg = Twist()
-        distance_tolerance = 0.00001      #ooga booga
+        distance_tolerance = 0.0001      #ooga booga
+        distance_tolerance2 = 0.001      #ooga booga
         print "docking"
+
+        # while abs(self.angle_mid - 3.14159) > distance_tolerance2:
+        #     vel_msg.linear.x = 0
+        #     vel_msg.angular.x = 0
+        #     vel_msg.angular.y = 0
+        #     vel_msg.angular.z = 1 * (self.angle_mid - 3.14159)
+        #     # Publishing our vel_msg
+        #     self.velocity_publisher.publish(vel_msg)
+        # # Stopping our robot after the movement is over.
+        # vel_msg.linear.x = 0
+        # vel_msg.angular.z = 0
+        # self.velocity_publisher.publish(vel_msg)
+        # print "angle_mid : ", degrees(self.angle_mid)
+
         while self.range_mid > radius:
-            while abs(self.avgRange1 - self.avgRange2) > distance_tolerance:
+            while abs(self.avgRange1 - self.avgRange2) >= distance_tolerance and abs(self.range_mid - 3.14159) > distance_tolerance2:
+            # while abs(self.angle_mid - 3.14159) > distance_tolerance2 and abs(self.avgRange1 - self.avgRange2) > distance_tolerance:
                 # Angular velocity in the z-axis.
                 vel_msg.linear.x = 0
                 
                 vel_msg.angular.x = 0
                 vel_msg.angular.y = 0
-                vel_msg.angular.z = -self.angular_vel()
+                vel_msg.angular.z = -self.angular_vel() + 0.5 * (self.angle_mid - 3.14159)
                 # print "diff : ", abs(self.avgRange1 - self.avgRange2)
                 # print "range : ", self.avgRange1, self.avgRange2
-
+                print "range vel : ",vel_msg.angular.z
+                print "angle vel : ",(self.angle_mid - 3.14159)
                 # Publishing our vel_msg
                 self.velocity_publisher.publish(vel_msg)
+
+                self.rate.sleep()
 
             # Stopping our robot after the movement is over.
             vel_msg.linear.x = 0
             vel_msg.angular.z = 0
             self.velocity_publisher.publish(vel_msg)
-            print self.avgRange1, self.avgRange2
+            # print self.avgRange1, self.avgRange2
             print "angle_mid : ", degrees(self.angle_mid)
             print "turn done"
+            self.constant = 60
+            # self.constant = 1
 
-            while abs(self.avgRange1 - self.avgRange2) <= distance_tolerance:
+            while abs(self.avgRange1 - self.avgRange2) < distance_tolerance and abs(self.angle_mid - 3.14159) <= distance_tolerance2:
+            # while abs(self.angle_mid - 3.14159) <= distance_tolerance2 and abs(self.avgRange1 - self.avgRange2) <= distance_tolerance:
                 # Linear velocity in the x-axis.
                 vel_msg.linear.x = -self.linear_vel()
                 vel_msg.linear.y = 0
@@ -102,6 +120,8 @@ class chargingDock:
 
                 # Publishing our vel_msg
                 self.velocity_publisher.publish(vel_msg)
+
+                self.rate.sleep()
             
             print "move done"
             # Stopping our robot after the movement is over.
@@ -110,6 +130,7 @@ class chargingDock:
             self.velocity_publisher.publish(vel_msg)
             continue
 
+        print "diff : ", abs(self.avgRange1 - self.avgRange2)
         print "all done"
         # Stopping our robot after the movement is over.
         vel_msg.linear.x = 0
@@ -165,10 +186,10 @@ class chargingDock:
 
             return roll, pitch, yaw
 
-    def calculate_point(self, xm, ym, slope, radius):
+    def calculate_point(self, xm, ym, slope, radius):   # Solve eqs to calc destination
         x, y = symbols('x y')
-        eq1 = Eq(((xm - x)/slope) + ym - y)
-        eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2)
+        eq1 = Eq(((xm - x)/slope) + ym - y) # eq of line
+        eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2) # eq of circle
         sol = solve((eq1, eq2), (x,y))
         return sol
 
@@ -190,30 +211,11 @@ class chargingDock:
                     tfListener.waitForTransform(mid.header.frame_id, 'map', now, rospy.Duration(0.1))
                     mid.header.stamp = now
                     new = tfListener.transformPoint('map', mid)
-                    # self.flag1 = False
-                    # print "lasagne"
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                 # continue
                 pass
         return new
 
-    def transform_pose(self, pose):
-        tfListener = tf.TransformListener()
-        if pose.header.frame_id != "":
-            tfListener.waitForTransform(pose.header.frame_id, '/base_link', rospy.Time(), rospy.Duration(0.5))
-            try:
-                now = rospy.Time.now()
-                tfListener.waitForTransform(pose.header.frame_id, '/base_link', now, rospy.Duration(0.1))
-                if tfListener.canTransform(pose.header.frame_id, '/base_link', now):
-                    now = rospy.Time.now()
-                    tfListener.waitForTransform(pose.header.frame_id, '/base_link', now, rospy.Duration(0.1))
-                    pose.header.stamp = now
-                    new = tfListener.transformPose('/base_link', pose)
-            except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-                pass
-        return new
-
-    # def show_point_in_rviz(self, xm, ym, x1, y1, x2, y2):
     def show_point_in_rviz(self, xm, ym, x1, y1):
         marker = Marker()
         pt = Point()
@@ -267,17 +269,27 @@ class chargingDock:
         print "Destination : ", x, y
         self.show_point_in_rviz(self.new.point.x, self.new.point.y, x, y)
         temp_pose = Pose()
+
+        # if self.angle_mid > 3.14159:
+        #     self.angle_mid = 3.14159*2 - self.angle_mid
+
+        # temp_pose = self.rot_conversion(0,0,self.angle_mid,0,True)
+
         temp_pose.position.x = x
         temp_pose.position.y = y
         temp_pose.orientation.z = 0
         temp_pose.orientation.w = 1
-        self.dest[0] = x
-        self.dest[1] = y
         result = self.move_base_client(temp_pose)
         if result:
             self.flag2 = True
             print "move done"
             return result
+
+    # def error_check(self):
+    #     vel_msg = Twist()
+    #     if 
+    #     vel_msg.angular.z = 0.5
+        
 
     def steering(self, x, y):
         roll,pitch,yaw = self.rot_conversion(0,0,0,self.pose.pose,False) # Roll,pitch,yaw,pose,flag
@@ -357,25 +369,27 @@ class chargingDock:
         mid.header.frame_id = '/laser_link'
         mid.header.stamp = rospy.Time.now()
 
-        if self.flag1 == False and self.range_mid < 6:
-            print "Cheesecake"
+        # if self.flag1 == False and self.angle_mid >= 177.5 and self.angle_mid <= 182.5:
+        #     self.error_check()
+
+        if self.flag1 == False:
+            print "Starting"
             self.new = self.get_transform(mid)
             # self.mark.append(self.show_point_in_rviz(self.new.point.x, self.new.point.y))
             
             self.pt1 = self.get_transform(coor1)
             self.pt2 = self.get_transform(coor2)
+            print "test mid : ", (self.pt1.point.x + self.pt2.point.x)/2,(self.pt1.point.y + self.pt2.point.y)/2
+            # print "mid global x,y : ", self.new.point.x, self.new.point.y
             self.flag1 = True
+            self.new.point.x = (self.pt1.point.x + self.pt2.point.x)/2
+            self.new.point.y = (self.pt1.point.y + self.pt2.point.y)/2
             thread.start_new_thread(self.move_to_dest, ())
             # self.thread1.start()
-            
-        if self.flag2 == True:
-            self.flag2 = False
-            thread.start_new_thread(self.steering, (self.dest[0], self.dest[1]))
-            # self.thread2.start()
 
-        if self.flag3 == True and self.range_mid > 0.5:
+        if self.flag2 == True and self.range_mid > 0.5:
             thread.start_new_thread(self.move_to_dock, (0.4,))  
-            self.flag3 = False
+            self.flag2 = False
             # self.flag1 = False
 
         
