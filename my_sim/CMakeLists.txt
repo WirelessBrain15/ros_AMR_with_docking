@@ -161,7 +161,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
  install(PROGRAMS
-   scripts/nav_test.py
+   scripts/nav_test.py scripts/lidar_test.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

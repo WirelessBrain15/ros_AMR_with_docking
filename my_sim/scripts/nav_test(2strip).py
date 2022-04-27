@@ -21,7 +21,6 @@ class chargingDock:
     def __init__(self):
         self.flag1 = False
         self.flag2 = False
-        self.flag3 = False
         self.angle_mid = 0
         self.angle1 = 0
         self.angle2 = 0
@@ -32,10 +31,10 @@ class chargingDock:
         self.pt1 = PointStamped()
         self.pt2 = PointStamped()
         self.slope = 0
-        self.radius = 0.8
+        self.radius = 1.5
         self.sol = {}
         self.mark = []
-        self.constant = 1.2
+        self.constant = 10
         # self.constant = 0.9
         self.rate = rospy.Rate(20)
         self.pose = PoseStamped()
@@ -54,11 +53,11 @@ class chargingDock:
         self.pose.pose = data.pose.pose
 
     def linear_vel(self):
-        return 0.1*(self.range_mid)
-        # try:
-        #     return 0.1*(sqrt(self.avgRange1**2 - 0.1**2))
-        # except:
-        #     return 0.1*(sqrt(self.avgRange2**2 - 0.1**2))
+        # return 0.3*(self.range_mid)
+        try:
+            return 0.1*(sqrt(self.avgRange1**2 - 0.1**2))
+        except:
+            return 0.1*(sqrt(self.avgRange2**2 - 0.1**2))
 
     def angular_vel(self):
         return self.constant * (self.avgRange1 - self.avgRange2)
@@ -70,15 +69,15 @@ class chargingDock:
     def move_to_dock(self, radius):
         rospy.sleep(1)
         vel_msg = Twist()
-        distance_tolerance = 0.0001      #ooga booga
-        distance_tolerance2 = 0.01      #ooga booga
+        distance_tolerance = 0.001      #ooga booga
+        distance_tolerance2 = 0.1      #ooga booga
         print "docking"
 
-        while abs(abs(self.angle_mid)) > distance_tolerance2:
+        while abs(self.angle_mid - 3.14159) > distance_tolerance2:
             vel_msg.linear.x = 0
             vel_msg.angular.x = 0
             vel_msg.angular.y = 0
-            vel_msg.angular.z = 0.6 * (abs(self.angle_mid))
+            vel_msg.angular.z = 0.6 * (self.angle_mid - 3.14159)
             # Publishing our vel_msg
             self.velocity_publisher.publish(vel_msg)
         # Stopping our robot after the movement is over.
@@ -89,28 +88,25 @@ class chargingDock:
 
         print "Phase 1 done"
         
-        while self.range_mid > radius and (self.angle_mid < 0.349066 or self.angle_mid > 5.93412):
-        # # while abs(self.angle_mid - 3.14159) <= distance_tolerance2 and abs(self.avgRange1 - self.avgRange2) <= distance_tolerance:
+        while self.avgRange1 > radius:
+        # while abs(self.angle_mid - 3.14159) <= distance_tolerance2 and abs(self.avgRange1 - self.avgRange2) <= distance_tolerance:
             # Linear velocity in the x-axis.
             vel_msg.linear.x = -self.linear_vel()
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
 
-            # vel_msg.angular.z = -self.angular_vel()
-
             # Publishing our vel_msg
             self.velocity_publisher.publish(vel_msg)
 
-            while self.range_mid > radius and abs(self.avgRange1 - self.avgRange2) >= distance_tolerance:
+            while abs(self.avgRange1 - self.avgRange2) >= distance_tolerance:
                 # Angular velocity in the z-axis.
-                vel_msg.linear.x = -self.linear_vel()
+                
                 vel_msg.angular.x = 0
                 vel_msg.angular.y = 0
-                vel_msg.angular.z = self.angular_vel()
-                print "vel : ", self.angular_vel()
+                vel_msg.angular.z = -self.angular_vel()
                 # print "diff : ", abs(self.avgRange1 - self.avgRange2)
                 # print "range : ", self.avgRange1, self.avgRange2
-                # print "correction"
+                print "correction"
 
                 # Publishing our vel_msg
                 self.velocity_publisher.publish(vel_msg)
@@ -122,7 +118,6 @@ class chargingDock:
         vel_msg.linear.x = 0
         vel_msg.angular.z = 0
         self.velocity_publisher.publish(vel_msg)
-        print "diff : ", abs(self.avgRange1 - self.avgRange2)
         print "angle_mid : ", degrees(self.angle_mid)
         print "all done"
 
@@ -348,8 +343,8 @@ class chargingDock:
             y = self.sol[1][1]
             # print "celery"
         
-        # print self.sol
-        # print self.pose.pose.position.x, self.pose.pose.position.y
+        print self.sol
+        print self.pose.pose.position.x, self.pose.pose.position.y
         print "Destination : ", x, y
         self.show_point_in_rviz(self.new.point.x, self.new.point.y, x, y)
         temp_pose = Pose()
@@ -369,71 +364,64 @@ class chargingDock:
             print "move done"
             return result
 
+    # def error_check(self):
+    #     vel_msg = Twist()
+    #     if 
+    #     vel_msg.angular.z = 0.5
+        
+
+    def steering(self, x, y):
+        roll,pitch,yaw = self.rot_conversion(0,0,0,self.pose.pose,False) # Roll,pitch,yaw,pose,flag
+        print "roll, pitch, yaw : ",degrees(roll), degrees(pitch), degrees(yaw)
+        print "angle_mid : ",degrees(self.angle_mid)
+        if degrees(self.angle_mid) > 180:
+            self.angle_mid = self.angle_mid - 6.28
+
+        yaw = self.angle_mid
+        # print degrees(yaw)
+        temp_pose = self.rot_conversion(roll,pitch,yaw,0,True)
+        # print temp_pose
+        temp_pose.position.x = x
+        temp_pose.position.y = y
+        result = self.move_base_client(temp_pose)
+        if result:
+            print "angle_mid : ", degrees(self.angle_mid)
+            print "rotation done"
+            self.flag3 = True
+            return result
+
     def callBack(self, data):
         range1 = []
         range2 = []
-        range3 = []
         index1 = []
         index2 = []
-        index3 = []
-        indexArray = []
         flag = True
         coor1 = PointStamped()
         coor2 = PointStamped()
         mid = PointStamped()
         temp_pose = Pose()
         # tfListener = tf.TransformListener()
-        lidarArray = np.array(data.intensities, dtype=np.float32)
+        cDarray = np.array(data.intensities, dtype=np.float32)  # Intensity
         rangeArray = np.array(data.ranges, dtype=np.float32)    # Ranges
-        for index, value in enumerate(lidarArray):
-            if self.flag3 == False and value > 0.5 and value < 1.5: # Intensity range
-                #flag = False
-                # if flag == True:        # Strip 1
-                #     range1.append(rangeArray[index])
-                #     index1.append(index)
-                # else:
-                #     range2.append(rangeArray[index])        # Strip 2
-                #     index2.append(index)
-                # if flag == True and (lidarArray[index+1] - lidarArray[index] < -200):
-                #     flag = False
-                # print( lidarArray[index+1] - lidarArray[index]
+        for index, value in enumerate(cDarray):
+            if value > 0.5 and value < 1.5: # Intensity range
+                if flag == True:        # Strip 1
+                    range1.append(rangeArray[index])
+                    index1.append(index)
+                else:
+                    range2.append(rangeArray[index])        # Strip 2
+                    index2.append(index)
+                if flag == True and cDarray[index+1] - cDarray[index] < 0:
+                    flag = False
 
-                # alternate
-                indexArray.append(index)
-                #print(indexArray)
-
-            # if self.flag3 == True and value > 900 and value < 1200 and (index < 1150 or index > 850): # Intensity range
-            #     indexArray.append(index)
-
-        testArray = []
-        for i in range(1,len(indexArray)):
-            if indexArray[i] - indexArray[i-1] >= 10:
-                testArray.append(i)
-        indexArray = np.split(indexArray,testArray)
-        index1 = indexArray[0]
-        index2 = indexArray[2]
-        index3 = indexArray[1]
-
-        range1 = rangeArray[index1]
-        range2 = rangeArray[index2]
-        range3 = rangeArray[index3]
-
-        # print "testArray : ", testArray
-        # print "indexArray : ", indexArray
-        # print "index1 : ", index1
-        # print "index2 : ", index2
-        # print "index3 : ", index3
-        # print "range1 : ", range1
-        # print "range2 : ", range2
-        # print "range3 : ", range3
-
-        # Mid point
-        self.angle_mid = (sum(index3)/len(index3))*data.angle_increment 
-        self.range_mid = sum(range3)/len(range3)
+        # mid point
+        index_mid = (index1[0] + index2[-1])/2
+        self.range_mid = rangeArray[index_mid]
 
         # Calculating angles in radians # (data.angle_min +)
         self.angle1 = (sum(index1)/len(index1))*data.angle_increment   
         self.angle2 = (sum(index2)/len(index2))*data.angle_increment
+        self.angle_mid = (index_mid)*data.angle_increment
         theta = self.angle2 - self.angle1 # angle btw ranges1 & 2 (radians)
         # print "angle_mid : ", degrees(self.angle_mid)
 
@@ -442,42 +430,26 @@ class chargingDock:
         self.avgRange2 = sum(range2)/len(range2)
         dist = self.cosineRule(self.avgRange1, self.avgRange2, theta)
 
-        # Angle correction for reverse docking, *only correcting mid angle
-        if (self.angle2 - self.angle1) > 5.23599:
-            # print "changing"
-            if self.angle_mid < 3.14159:
-                temp = self.angle1
-                self.angle1 = self.angle_mid
-                self.angle_mid = temp
-                temp = self.avgRange1
-                self.avgRange1 = self.range_mid
-                self.range_mid = temp
-            else:
-                temp = self.angle2
-                self.angle2 = self.angle_mid
-                self.angle_mid = temp
-                temp = self.avgRange2
-                self.avgRange2 = self.range_mid
-                self.range_mid = temp
-
         # Coordinates of strips
-        coor1.point.x = self.avgRange1*cos(data.angle_min + self.angle1)
-        coor1.point.y = self.avgRange1*sin(data.angle_min + self.angle1)
+        coor1.point.x = self.avgRange1*cos(self.angle1)
+        coor1.point.y = self.avgRange1*sin(self.angle1)
         coor1.header.frame_id = '/laser_link'
         coor1.header.stamp = rospy.Time.now()
 
-        coor2.point.x  = self.avgRange2*cos(data.angle_min + self.angle2)
-        coor2.point.y  = self.avgRange2*sin(data.angle_min + self.angle2)
+        coor2.point.x  = self.avgRange2*cos(self.angle2)
+        coor2.point.y  = self.avgRange2*sin(self.angle2)
         coor2.header.frame_id = '/laser_link'
         coor2.header.stamp = rospy.Time.now()
 
         # Coordinate of dock
-        mid.point.x = self.range_mid*cos(data.angle_min + self.angle_mid)
-        mid.point.y = self.range_mid*sin(data.angle_min + self.angle_mid)
+        mid.point.x = self.range_mid*cos(self.angle_mid)
+        mid.point.y = self.range_mid*sin(self.angle_mid)
     
         mid.header.frame_id = '/laser_link'
         mid.header.stamp = rospy.Time.now()
 
+        # if self.flag1 == False and self.angle_mid >= 177.5 and self.angle_mid <= 182.5:
+        #     self.error_check()
 
         if self.flag1 == False:
             print "Starting"
@@ -486,16 +458,16 @@ class chargingDock:
             
             self.pt1 = self.get_transform(coor1)
             self.pt2 = self.get_transform(coor2)
-            # print "test mid : ", (self.pt1.point.x + self.pt2.point.x)/2,(self.pt1.point.y + self.pt2.point.y)/2
+            print "test mid : ", (self.pt1.point.x + self.pt2.point.x)/2,(self.pt1.point.y + self.pt2.point.y)/2
             # print "mid global x,y : ", self.new.point.x, self.new.point.y
             self.flag1 = True
-            # self.new.point.x = (self.pt1.point.x + self.pt2.point.x)/2
-            # self.new.point.y = (self.pt1.point.y + self.pt2.point.y)/2
+            self.new.point.x = (self.pt1.point.x + self.pt2.point.x)/2
+            self.new.point.y = (self.pt1.point.y + self.pt2.point.y)/2
             thread.start_new_thread(self.move_to_dest, ())
             # self.thread1.start()
 
         if self.flag2 == True and self.range_mid > 0.5:
-            thread.start_new_thread(self.move_to_dock, (0.4,))  
+            thread.start_new_thread(self.move_to_dock, (0.5,))  
             self.flag2 = False
             # self.flag1 = False
 

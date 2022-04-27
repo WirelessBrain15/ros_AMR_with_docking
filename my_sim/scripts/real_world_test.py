@@ -1,5 +1,4 @@
 
-# from __future__ import print_function
 import rospy
 import numpy as np
 from math import pow, atan2, sqrt, degrees, radians, cos, sin
@@ -21,7 +20,6 @@ class chargingDock:
     def __init__(self):
         self.flag1 = False
         self.flag2 = False
-        self.flag3 = False
         self.angle_mid = 0
         self.angle1 = 0
         self.angle2 = 0
@@ -35,7 +33,7 @@ class chargingDock:
         self.radius = 1.5
         self.sol = {}
         self.mark = []
-        self.constant = 10
+        self.constant = 20
         # self.constant = 0.9
         self.rate = rospy.Rate(20)
         self.pose = PoseStamped()
@@ -54,7 +52,7 @@ class chargingDock:
         self.pose.pose = data.pose.pose
 
     def linear_vel(self):
-        return 0.3*(sqrt(self.avgRange1**2 - 0.06**2))
+        return 0.3*(self.range_mid)
 
     def angular_vel(self):
         return self.constant * (self.avgRange1 - self.avgRange2)
@@ -66,78 +64,87 @@ class chargingDock:
     def move_to_dock(self, radius): # Docking algo
         rospy.sleep(1)
         vel_msg = Twist()
-        distance_tolerance = 0.0001      #ooga booga
-        distance_tolerance2 = 0.01      #ooga booga
+        distance_tolerance = 0.00001      #ooga booga
+        distance_tolerance2 = 0.001      #ooga booga
         print("docking")
-        
-        # while abs(abs(self.angle1) - 3.14159) > distance_tolerance2:
-        while abs(self.angle_mid) > distance_tolerance2:
-            vel_msg.linear.x = 0
-            vel_msg.angular.x = 0
-            vel_msg.angular.y = 0
-            # vel_msg.angular.z = -0.7 * (abs(self.angle1) - 3.14159)
-            vel_msg.angular.z = 0.7 * abs(self.angle_mid)
-            # Publishing our vel_msg
-            self.velocity_publisher.publish(vel_msg)
-        # Stopping our robot after the movement is over.
-        vel_msg.linear.x = 0
-        vel_msg.angular.z = 0
-        self.velocity_publisher.publish(vel_msg)
-        #print( "angle_mid : ", degrees(self.angle_mid)
-        print( "Phase 1 done")
-        self.flag3 = True
 
+        # while abs(self.angle_mid - 3.14159) > distance_tolerance2:
+        #     vel_msg.linear.x = 0
+        #     vel_msg.angular.x = 0
+        #     vel_msg.angular.y = 0
+        #     vel_msg.angular.z = 0.8 * (self.angle_mid - 3.14159)
+        #     # Publishing our vel_msg
+        #     self.velocity_publisher.publish(vel_msg)
+        # # Stopping our robot after the movement is over.
+        # vel_msg.linear.x = 0
+        # vel_msg.angular.z = 0
+        # self.velocity_publisher.publish(vel_msg)
+        # print( "angle_mid : ", degrees(self.angle_mid)
 
-        while sqrt(self.avgRange1**2 - 0.06**2) > radius:
+        # print( "Phase 1 done"
 
-                while abs(self.avgRange1 - self.avgRange2) >= distance_tolerance:
+        while self.range_mid > radius:
+
+            # while abs(self.angle_mid - 3.14159) > distance_tolerance2:
+            #     vel_msg.linear.x = 0
+            #     vel_msg.angular.x = 0
+            #     vel_msg.angular.y = 0
+            #     vel_msg.angular.z = 0.8 * (self.angle_mid - 3.14159)
+            #     # Publishing our vel_msg
+            #     self.velocity_publisher.publish(vel_msg)
+            # # Stopping our robot after the movement is over.
+            # vel_msg.linear.x = 0
+            # vel_msg.angular.z = 0
+            # self.velocity_publisher.publish(vel_msg)
+            # print( "angle_mid : ", degrees(self.angle_mid)
+
+            # print( "Phase 1 done"
+            while abs(self.avgRange1 - self.avgRange2) >= distance_tolerance:
             # while abs(self.angle_mid - 3.14159) > distance_tolerance2 and abs(self.avgRange1 - self.avgRange2) > distance_tolerance:
-                    # Angular velocity in the z-axis.
-                    vel_msg.linear.x = 0
-        
-                    vel_msg.angular.x = 0
-                    vel_msg.angular.y = 0
-                    vel_msg.angular.z = -self.angular_vel()
-                    # vel_msg.angular.z = -self.angular_vel()
-                    # print( "diff : ", abs(self.avgRange1 - self.avgRange2))
-                    # print( "range : ", self.avgRange1, self.avgRange2
-
-                    # Publishing our vel_msg
-                    self.velocity_publisher.publish(vel_msg)
-
-                    self.rate.sleep()
-
-                # Stopping our robot after the movement is over.
+                # Angular velocity in the z-axis.
                 vel_msg.linear.x = 0
-                vel_msg.angular.z = 0
-                self.velocity_publisher.publish(vel_msg)
-                # print( self.avgRange1, self.avgRange2
-                print("angle_mid : ", degrees(self.angle_mid))
-                print("turn done")
-                self.constant = 6
-                # self.flag3 = True
-                # self.constant = 1
+                
+                vel_msg.angular.x = 0
+                vel_msg.angular.y = 0
+                vel_msg.angular.z = -self.angular_vel()
+                # print( "diff : ", abs(self.avgRange1 - self.avgRange2)
+                # print( "range : ", self.avgRange1, self.avgRange2
 
-                while abs(self.avgRange1 - self.avgRange2) < distance_tolerance:
+                # Publishing our vel_msg
+                self.velocity_publisher.publish(vel_msg)
+
+                self.rate.sleep()
+
+            # Stopping our robot after the movement is over.
+            vel_msg.linear.x = 0
+            vel_msg.angular.z = 0
+            self.velocity_publisher.publish(vel_msg)
+            # print( self.avgRange1, self.avgRange2
+            print("angle_mid : ", degrees(self.angle_mid))
+            print("turn done")
+            self.constant = 60
+            # self.constant = 1
+
+            while abs(self.avgRange1 - self.avgRange2) < distance_tolerance:
             # while abs(self.angle_mid - 3.14159) <= distance_tolerance2 and abs(self.avgRange1 - self.avgRange2) <= distance_tolerance:
-                    # Linear velocity in the x-axis.
-                    vel_msg.linear.x = self.linear_vel()
-                    vel_msg.linear.y = 0
-                    vel_msg.linear.z = 0
+                # Linear velocity in the x-axis.
+                vel_msg.linear.x = -self.linear_vel()
+                vel_msg.linear.y = 0
+                vel_msg.linear.z = 0
 
-                    vel_msg.angular.z = 0
-
-                    # Publishing our vel_msg
-                    self.velocity_publisher.publish(vel_msg)
-
-                    self.rate.sleep()
-    
-                print("move done")
-                # Stopping our robot after the movement is over.
-                vel_msg.linear.x = 0
                 vel_msg.angular.z = 0
+
+                # Publishing our vel_msg
                 self.velocity_publisher.publish(vel_msg)
-                continue
+
+                self.rate.sleep()
+            
+            print("move done")
+            # Stopping our robot after the movement is over.
+            vel_msg.linear.x = 0
+            vel_msg.angular.z = 0
+            self.velocity_publisher.publish(vel_msg)
+            continue
 
         print( "diff : ", abs(self.avgRange1 - self.avgRange2))
         print( "all done")
@@ -147,12 +154,9 @@ class chargingDock:
         self.velocity_publisher.publish(vel_msg)
         return 0
 
-
     def move_base_client(self, pose):
         client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-        
-        #print("Test")
-	
+
         client.wait_for_server()
 
         goal = MoveBaseGoal()
@@ -168,13 +172,11 @@ class chargingDock:
         goal.target_pose.pose.orientation.y = pose.orientation.y
         goal.target_pose.pose.orientation.z = pose.orientation.z
         goal.target_pose.pose.orientation.w = pose.orientation.w
-        
-        #print("Test2")
-	
+
         client.send_goal(goal)
-        print("Test")
+
         wait = client.wait_for_result()
-        print("Test2")
+
         if not wait:
             print( "Action server not available")
             rospy.signal_shutdown()
@@ -202,28 +204,28 @@ class chargingDock:
 
     def calculate_point(self, xm, ym, slope, radius):   # Solve eqs to calc destination
         x, y = symbols('x y')
-        eq1 = Eq(((xm - x)/slope) + ym - y, 0) # eq of line
-        eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2, 0) # eq of circle
+        eq1 = Eq(((xm - x)/slope) + ym - y) # eq of line
+        eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2) # eq of circle
         sol = solve((eq1, eq2), (x,y))
         return sol
 
     def get_transform(self, mid):
-    	# tfBuffer = tf.Buffer()
-        tfListener = tf.TransformListener()
+    	tfBuffer = tf.Buffer()
+        tfListener = tf.TransformListener(tfBuffer)
         # while self.flag1 == True:
         if mid.header.frame_id != "":
             # print( "spaghet" 
-            tfListener.waitForTransform(mid.header.frame_id, 'map', rospy.Time(), rospy.Duration(3))
+            tfListener.waitForTransform(mid.header.frame_id, 'map', rospy.Time(), rospy.Duration(0.5))
             try:
                 now = rospy.Time.now()
-                tfListener.waitForTransform(mid.header.frame_id, 'map', now, rospy.Duration(1))
+                tfListener.waitForTransform(mid.header.frame_id, 'map', now, rospy.Duration(0.1))
                 # print( "carbonara"
                 # (trans, rot) = tfListener.lookupTransform('map',mid.header.frame_id, now)
                 # print( trans, rot
                 if tfListener.canTransform(mid.header.frame_id, 'map', now):
                     # print( "linguini"
                     now = rospy.Time.now()
-                    tfListener.waitForTransform(mid.header.frame_id, 'map', now, rospy.Duration(1))
+                    tfListener.waitForTransform(mid.header.frame_id, 'map', now, rospy.Duration(0.1))
                     mid.header.stamp = now
                     new = tfListener.transformPoint('map', mid)
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
@@ -271,7 +273,6 @@ class chargingDock:
 
         # destination to line up
         self.sol = self.calculate_point(self.new.point.x, self.new.point.y, self.slope, self.radius)
-        print(self.sol)
 
         if (self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[0][0], self.sol[0][1]) < self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[1][0], self.sol[1][1])):
             x = self.sol[0][0]
@@ -296,11 +297,11 @@ class chargingDock:
         temp_pose.position.y = y
         temp_pose.orientation.z = 0
         temp_pose.orientation.w = 1
-        result = self.move_base_client(temp_pose)
-        if result:
-            self.flag2 = True
-            print( "move done")
-            return result
+        # result = self.move_base_client(temp_pose)
+        # if result:
+        #     self.flag2 = True
+        #     print( "move done")
+        #     return result
 
     def callBack(self, data):
         range1 = []
@@ -317,8 +318,7 @@ class chargingDock:
         lidarArray = np.array(data.intensities, dtype=np.float32)
         rangeArray = np.array(data.ranges, dtype=np.float32)    # Ranges
         for index, value in enumerate(lidarArray):
-            if self.flag3 == False and value > 800 and value < 1200: # Intensity range
-                #flag = False
+            if value > 900 and value < 1200: # Intensity range
                 # if flag == True:        # Strip 1
                 #     range1.append(rangeArray[index])
                 #     index1.append(index)
@@ -331,11 +331,6 @@ class chargingDock:
 
                 # alternate
                 indexArray.append(index)
-                #print(indexArray)
-
-            if self.flag3 == True and value > 900 and value < 1200 and (index < 1150 or index > 850): # Intensity range
-                indexArray.append(index)
-
         index1.append(indexArray[0])
         for i in range(1,len(indexArray)):
             if indexArray[i-1]+1 == indexArray[i] and flag == True:
@@ -345,18 +340,17 @@ class chargingDock:
                 flag = False
                 range2.append(rangeArray[indexArray[i]])
                 index2.append(indexArray[i])
-
+    
         # mid point
-        print(indexArray)
         index_mid = int((index1[0] + index2[-1])/2)
         self.range_mid = rangeArray[index_mid]
 
         # Calculating angles in radians # (data.angle_min +)
-        self.angle1 = data.angle_min + (sum(index1)/len(index1))*data.angle_increment   
-        self.angle2 = data.angle_min + (sum(index2)/len(index2))*data.angle_increment
-        self.angle_mid = data.angle_min + (index_mid)*data.angle_increment
+        self.angle1 = (sum(index1)/len(index1))*data.angle_increment   
+        self.angle2 = (sum(index2)/len(index2))*data.angle_increment
+        self.angle_mid = (index_mid)*data.angle_increment
         theta = self.angle2 - self.angle1 # angle btw ranges1 & 2 (radians)
-        # print( "angle_mid : ", degrees(self.angle_mid))
+        # print( "angle_mid : ", degrees(self.angle_mid)
 
         # Distance between strips
         self.avgRange1 = sum(range1)/len(range1)
@@ -366,19 +360,19 @@ class chargingDock:
         # Coordinates of strips
         coor1.point.x = self.avgRange1*cos(self.angle1)
         coor1.point.y = self.avgRange1*sin(self.angle1)
-        coor1.header.frame_id = 'laser_link'
+        coor1.header.frame_id = '/scan'
         coor1.header.stamp = rospy.Time.now()
 
         coor2.point.x  = self.avgRange2*cos(self.angle2)
         coor2.point.y  = self.avgRange2*sin(self.angle2)
-        coor2.header.frame_id = 'laser_link'
+        coor2.header.frame_id = '/scan'
         coor2.header.stamp = rospy.Time.now()
 
         # Coordinate of dock
         mid.point.x = self.range_mid*cos(self.angle_mid)
         mid.point.y = self.range_mid*sin(self.angle_mid)
     
-        mid.header.frame_id = 'laser_link'
+        mid.header.frame_id = '/scan'
         mid.header.stamp = rospy.Time.now()
 
         # if self.flag1 == False and self.angle_mid >= 177.5 and self.angle_mid <= 182.5:
@@ -396,34 +390,32 @@ class chargingDock:
             self.flag1 = True
             self.new.point.x = (self.pt1.point.x + self.pt2.point.x)/2
             self.new.point.y = (self.pt1.point.y + self.pt2.point.y)/2
-            thread1 = Thread(target = self.move_to_dest(), name= 'thread1')
-            thread1.start()
+            thread.start_new_thread(self.move_to_dest, ())
+            # self.thread1.start()
 
-        if self.flag2 == True and self.range_mid > 0.4:  
-            thread2 = Thread(target=self.move_to_dock, args=(0.6,))
-            thread1.join()
-            thread2.start()
+        if self.flag2 == True and self.range_mid > 0.5:
+            # thread.start_new_thread(self.move_to_dock, (0.4,))  
             self.flag2 = False
             # self.flag1 = False
 
         
 
-        # print( "Threading")
-        # print( "Active thread count :", active_count())
+        # print(
+        # print( "Active thread count :", active_count()
         # print( self.flag2
         # roll,pitch,yaw = self.rot_conversion(0,0,0,self.pose.pose,False)
         # print( "yaw", degrees(yaw)
         # print( rospy.Time.now() - mid.header.stamp
-        # print( "dist btw : ", dist )
+        # print( "dist btw : ", dist 
         # print( "coor1 x,y : ", coor1.point.x, coor1.point.y
         # print( "coor2 x,y : ", coor2.point.x, coor2.point.y
-        # print( "ranges : ", self.avgRange1, self.avgRange2)
-        # print( "range_mid : ", self.range_mid)
-        # print( "angle_mid : ", degrees(self.angle_mid))
+        # print( "ranges : ", self.avgRange1, self.avgRange2
+        # print( "range_mid : ", self.range_mid
+        # print( "angle_mid : ", degrees(self.angle_mid)
         # print( "mid. x,y : ", mid.point.x, mid.point.y
         # print( "mid global x,y : ", self.new.point.x, self.new.point.y
         # print( "slope : ", self.slope
-        # print( "angles : ", degrees(self.angle1), degrees(self.angle2))
+        # print( "angles : ", degrees(self.angle1), degrees(self.angle2)
         # print( "sep : ", degrees(self.angle2 - self.angle1)
 
 def main():
@@ -432,7 +424,6 @@ def main():
     while not rospy.is_shutdown():
         try:
             cD = chargingDock()
-            # cD.move_to_dock(0.4)
             rospy.spin()    
         except KeyboardInterrupt:
             print( "Shutting down")
