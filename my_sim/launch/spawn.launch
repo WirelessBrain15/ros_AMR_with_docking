@@ -1,0 +1,17 @@
+<launch>
+<!--<include file="$(find my_sim)/launch/spawn_urdf.launch"> -->
+<!--    <arg name="urdf_robot_file" value="$(find urdfnew_pf)/urdf/urdfnew_pf.urdf" /> 
+    <arg name="robot_name" value="urdfnew_pf" />
+   </include> -->
+   
+<!--    <rosparam file="$(find my_sim)/param/differential_controller.yaml" command="load"/> --> 
+    <rosparam file="$(find my_sim)/param/controller.yaml" command="load"/>   
+    
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"   args="w_r_joint_velocity_controller w_l_joint_velocity_controller joint_state_controller"/>  
+</launch>
+
+
+
+
+
+<!-- w_r_joint_velocity_controller w_l_joint_velocity_controller joint_state_controller -->

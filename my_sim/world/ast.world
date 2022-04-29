@@ -1,0 +1,579 @@
+<sdf version='1.6'>
+  <world name='default'>
+    <light name='sun' type='directional'>
+      <cast_shadows>1</cast_shadows>
+      <pose frame=''>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <model name='ast_urdf'>
+      <link name='base_link'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>0.050902 -0.000591 0.12065 0 -0 0</pose>
+          <mass>9.32301</mass>
+          <inertia>
+            <ixx>0.371106</ixx>
+            <ixy>0.00053875</ixy>
+            <ixz>0.014609</ixz>
+            <iyy>0.404859</iyy>
+            <iyz>1.53029e-05</iyz>
+            <izz>0.354387</izz>
+          </inertia>
+        </inertial>
+        <collision name='base_link_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/base_link.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base_link_fixed_joint_lump__IMU_link_collision_1'>
+          <pose frame=''>0 0 -0.0591 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/IMU_link.STL</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='base_link_fixed_joint_lump__IR_link_collision_2'>
+          <pose frame=''>0.223 0 -0.0185 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/IR_link.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base_link_fixed_joint_lump__camera_link_collision_3'>
+          <pose frame=''>0.2 0 0.2795 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/camera_link.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base_link_fixed_joint_lump__laser_link_collision_4'>
+          <pose frame=''>0.14136 0 0.11635 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/laser_link.STL</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='base_link_fixed_joint_lump__ultrasonic_l_collision_5'>
+          <pose frame=''>0.208 0.2125 -0.0185 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/ultrasonic_l.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base_link_fixed_joint_lump__ultrasonic_r_collision_6'>
+          <pose frame=''>0.208 -0.2125 -0.0185 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/ultrasonic_r.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='base_link_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/base_link.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__IMU_link_visual_1'>
+          <pose frame=''>0 0 -0.0591 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/IMU_link.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__IR_link_visual_2'>
+          <pose frame=''>0.223 0 -0.0185 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/IR_link.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__camera_link_visual_3'>
+          <pose frame=''>0.2 0 0.2795 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/camera_link.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__laser_link_visual_4'>
+          <pose frame=''>0.14136 0 0.11635 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/laser_link.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__ultrasonic_l_visual_5'>
+          <pose frame=''>0.208 0.2125 -0.0185 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/ultrasonic_l.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='base_link_fixed_joint_lump__ultrasonic_r_visual_6'>
+          <pose frame=''>0.208 -0.2125 -0.0185 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/ultrasonic_r.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <velocity_decay/>
+        <gravity>1</gravity>
+        <sensor name='imu_sensor' type='imu'>
+          <always_on>1</always_on>
+          <update_rate>100</update_rate>
+          <visualize>1</visualize>
+          <topic>__default_topic__</topic>
+          <plugin name='imu_plugin' filename='libgazebo_ros_imu_sensor.so'>
+            <topicName>imu_data</topicName>
+            <bodyName>IMU_link</bodyName>
+            <updateRateHZ>10.0</updateRateHZ>
+            <gaussianNoise>0.0</gaussianNoise>
+            <xyzOffset>0 0 0</xyzOffset>
+            <rpyOffset>0 0 0</rpyOffset>
+            <frameName>IMU_link</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose frame=''>0 0 -0.0591 0 -0 0</pose>
+        </sensor>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <sensor name='head_hokuyo_sensor' type='gpu_ray'>
+          <visualize>0</visualize>
+          <update_rate>40</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>720</samples>
+                <resolution>1</resolution>
+                <min_angle>-1.5708</min_angle>
+                <max_angle>1.5708</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.1</min>
+              <max>6</max>
+              <resolution>0.01</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.01</stddev>
+            </noise>
+          </ray>
+          <plugin name='gazebo_ros_head_hokuyo_controller' filename='libgazebo_ros_gpu_laser.so'>
+            <topicName>scan</topicName>
+            <frameName>laser_link</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <pose frame=''>0.14136 0 0.11635 0 -0 -3.14159</pose>
+        </sensor>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <link name='link_w_l'>
+        <pose frame=''>0.1473 0.2625 -0.0515 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>0 -0.013922 0 0 -0 0</pose>
+          <mass>0.205956</mass>
+          <inertia>
+            <ixx>0.000151189</ixx>
+            <ixy>-9.44525e-21</ixy>
+            <ixz>4.46739e-21</ixz>
+            <iyy>0.000252342</iyy>
+            <iyz>2.55745e-20</iyz>
+            <izz>0.000151189</izz>
+          </inertia>
+        </inertial>
+        <collision name='link_w_l_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/link_w_l.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='link_w_l_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/link_w_l.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='joint_w_l' type='revolute'>
+        <child>link_w_l</child>
+        <parent>base_link</parent>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='link_w_r'>
+        <pose frame=''>0.1473 -0.2625 -0.0515 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>0 0.013922 0 0 -0 0</pose>
+          <mass>0.205956</mass>
+          <inertia>
+            <ixx>0.000151189</ixx>
+            <ixy>-2.43746e-20</ixy>
+            <ixz>-4.72224e-21</ixz>
+            <iyy>0.000252342</iyy>
+            <iyz>-2.08283e-20</iyz>
+            <izz>0.000151189</izz>
+          </inertia>
+        </inertial>
+        <collision name='link_w_r_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/link_w_r.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='link_w_r_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/meshes/link_w_r.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='joint_w_r' type='revolute'>
+        <child>link_w_r</child>
+        <parent>base_link</parent>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-1e+16</lower>
+            <upper>1e+16</upper>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <plugin name='gazebo_ros_control' filename='libgazebo_ros_control.so'>
+        <robotNamespace>ast_urdf</robotNamespace>
+        <robotParam>/home/vishrut/catkin_ws/src/ast_urdf/ast_urdf/ast_urdf.urdf</robotParam>
+      </plugin>
+      <static>0</static>
+      <plugin name='differential_drive_controller' filename='libgazebo_ros_diff_drive.so'>
+        <alwaysOn>true</alwaysOn>
+        <legacyMode>false</legacyMode>
+        <updateRate>10</updateRate>
+        <leftJoint>joint_w_l</leftJoint>
+        <rightJoint>joint_w_r</rightJoint>
+        <wheelSeparation>0.502</wheelSeparation>
+        <wheelDiameter>0.096</wheelDiameter>
+        <torque>15</torque>
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <robotBaseFrame>base_footprint</robotBaseFrame>
+        <robotNamespace>/</robotNamespace>
+      </plugin>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+    </model>
+    <state world_name='default'>
+      <sim_time>26 661000000</sim_time>
+      <real_time>34 104432208</real_time>
+      <wall_time>1582582396 325863929</wall_time>
+      <iterations>26661</iterations>
+      <model name='ast_urdf'>
+        <pose frame=''>0.051496 -0.001136 0.100798 5e-06 -0.004368 0.033838</pose>
+        <scale>1 1 1</scale>
+        <link name='base_link'>
+          <pose frame=''>0.051496 -0.001136 0.100798 5e-06 -0.004368 0.033838</pose>
+          <velocity>0.003184 9.5e-05 0.001432 0.00047 -0.012239 -0.000559</velocity>
+          <acceleration>-1.11402 -0.011142 4.20706 0.883876 0.189163 -0.142178</acceleration>
+          <wrench>-10.3861 -0.103874 39.2225 0 -0 0</wrench>
+        </link>
+        <link name='link_w_l'>
+          <pose frame=''>0.190051 0.266205 0.049947 6e-06 0.708358 0.033776</pose>
+          <velocity>0.00315 7.9e-05 0.004009 -0.001937 0.054505 -0.013682</velocity>
+          <acceleration>1.23752 0.200328 8.17665 2.5024 -0.963435 1.84791</acceleration>
+          <wrench>0.254875 0.041259 1.68403 0 -0 0</wrench>
+        </link>
+        <link name='link_w_r'>
+          <pose frame=''>0.207812 -0.258495 0.049944 2.5e-05 0.836956 0.033897</pose>
+          <velocity>0.002851 -5e-06 0.004006 0.000551 0.051951 0.007561</velocity>
+          <acceleration>1.27596 0.054043 8.22847 1.05046 1.44527 0.406518</acceleration>
+          <wrench>0.262792 0.01113 1.6947 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>5.25353 -5.24631 2.08092 0 0.275643 2.35619</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+  </world>
+</sdf>
