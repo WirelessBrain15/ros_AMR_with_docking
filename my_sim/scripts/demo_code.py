@@ -1,3 +1,4 @@
+
 import rospy
 import numpy as np
 from math import pow, atan2, sqrt, degrees, radians, cos, sin
@@ -12,6 +13,7 @@ import actionlib
 #import threading as thread
 from threading import Thread, active_count
 import time
+from scipy.optimize import fsolve
 
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
@@ -176,12 +178,26 @@ class chargingDock:
 
             return roll, pitch, yaw
 
-    def calculate_point(self, xm, ym, slope, radius):   # Solve eqs to calc destination
-        x, y = symbols('x y')
-        eq1 = Eq(((xm - x)/slope) + ym - y, 0) # eq of line
-        eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2, 0) # eq of circle
-        sol = solve((eq1, eq2), (x,y))
+    # def calculate_point(self, xm, ym, slope, radius):   # Solve eqs to calc destination
+    #     x, y = symbols('x y')
+    #     eq1 = Eq(((xm - x)/slope) + ym - y) # eq of line
+    #     eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2) # eq of circle
+    #     sol = solve((eq1, eq2), (x,y))
+    #     return sol
+
+    def calculate_point(self, xm, ym, slope, radius):
+        # zGuess = np.array([self.pose.pose.position.x,self.pose.pose.position.y])
+        zGuess = np.array([0,0])
+        sol = fsolve(self.my_func,zGuess)
         return sol
+
+    def my_func(self, z):
+        x = z[0]
+        y = z[1]
+        F = np.empty(2)
+        F[0] = ((self.new.point.x - x)/self.slope) + self.new.point.y - y
+        F[1] = (x - self.new.point.x)**2 + (y - self.new.point.y)**2 - self.radius**2
+        return F   
 
     def get_transform(self, mid):
         tfListener = tf.TransformListener()
@@ -240,16 +256,18 @@ class chargingDock:
         # destination to line up
         self.sol = self.calculate_point(self.new.point.x, self.new.point.y, self.slope, self.radius)
         print(self.sol)
+        x = self.sol[0]
+        y = self.sol[1]
 
-        if (self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[0][0], self.sol[0][1]) < self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[1][0], self.sol[1][1])):
-            x = self.sol[0][0]
-            y = self.sol[0][1]
-            # print( "cabbage"
+        # if (self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[0][0], self.sol[0][1]) < self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[1][0], self.sol[1][1])):
+        #     x = self.sol[0][0]
+        #     y = self.sol[0][1]
+        #     # print( "cabbage"
 
-        else:
-            x = self.sol[1][0]
-            y = self.sol[1][1]
-            # print( "celery"
+        # else:
+        #     x = self.sol[1][0]
+        #     y = self.sol[1][1]
+        #     # print( "celery"
         
         print( "Destination : ", x, y)
         self.show_point_in_rviz(self.new.point.x, self.new.point.y, x, y)
@@ -263,7 +281,7 @@ class chargingDock:
         if result:
             self.flag2 = True
             print( "move done")
-            return result
+            return 
 
     def callBack(self, data):
         range1 = []
@@ -418,6 +436,7 @@ def main():
             y = 0.28092578053474426
             move_base_initial(x, y)
             cD = chargingDock()
+            # cD.listener()
         except KeyboardInterrupt:
             print( "Shutting down")
 

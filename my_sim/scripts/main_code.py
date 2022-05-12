@@ -12,9 +12,10 @@ from geometry_msgs.msg import PointStamped, Point, Twist, Pose, PoseStamped
 from visualization_msgs.msg import Marker
 from sympy import symbols, Eq, solve
 import actionlib
+#import threading as thread
 from threading import Thread, active_count
 import time
-
+from scipy.optimize import fsolve
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 class docking_sequence:
@@ -123,7 +124,7 @@ class docking_sequence:
         self.lwheel_publisher.publish(lVel)
 
         print( "diff : ", (self.avgRange1 - self.avgRange2))
-        print("angle mid : ", degrees(self.angle_mid))
+        print("angle mid : ", self.angle_mid)
         print("Test done")
     
     def move_base_client(self, pose):
@@ -155,12 +156,26 @@ class docking_sequence:
         else:
             return client.get_result()
 
-    def calculate_point(self, xm, ym, slope, radius):   # Solve eqs to calc destination
-        x, y = symbols('x y')
-        eq1 = Eq(((xm - x)/slope) + ym - y, 0) # eq of line
-        eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2, 0) # eq of circle
-        sol = solve((eq1, eq2), (x,y))
+    # def calculate_point(self, xm, ym, slope, radius):   # Solve eqs to calc destination
+    #     x, y = symbols('x y')
+    #     eq1 = Eq(((xm - x)/slope) + ym - y, 0) # eq of line
+    #     eq2 = Eq((x - xm)**2 + (y - ym)**2 - radius**2, 0) # eq of circle
+    #     sol = solve((eq1, eq2), (x,y))
+    #     return sol
+
+    def calculate_point(self, xm, ym, slope, radius):
+        # zGuess = np.array([self.pose.pose.position.x,self.pose.pose.position.y])
+        zGuess = np.array([0,0])
+        sol = fsolve(self.my_func,zGuess)
         return sol
+
+    def my_func(self, z):
+        x = z[0]
+        y = z[1]
+        F = np.empty(2)
+        F[0] = ((self.new.point.x - x)/self.slope) + self.new.point.y - y
+        F[1] = (x - self.new.point.x)**2 + (y - self.new.point.y)**2 - self.radius**2
+        return F 
 
     def get_transform(self, mid):
         # Transform from frame_id to 'map'
