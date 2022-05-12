@@ -3,7 +3,7 @@
 
  <arg name="recording" default="false"/> --> 
 
- <arg name="world" default="$(find my_sim)/world/test_world.world"/> 
+ <arg name="world" default="$(find my_sim)/world/test_world_backup.world"/> 
  <include file="$(find gazebo_ros)/launch/empty_world.launch">
   <arg name="world_name" value= "$(arg world)"/> 
  <!-- <arg name="use_sim_time" value= "$(arg use_sim_time)"/> --> 
@@ -27,11 +27,11 @@
     <remap from="/joint_states" to="joint_states" /> 
     </node> 
 
-   <node
+   <!--<node
     name="amcl"
     pkg="amcl"
     type="amcl">
-    </node> 
+    </node> -->
 
 
   <!--<node pkg="sensor_node_pkg" type="sensor_node_type" name="sensor_node_name" output="screen">
