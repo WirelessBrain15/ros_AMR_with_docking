@@ -10,7 +10,7 @@ from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PointStamped, Point, Twist, Pose, PoseStamped
 from visualization_msgs.msg import Marker
-from sympy import symbols, Eq, solve
+# from sympy import symbols, Eq, solve
 import actionlib
 #import threading as thread
 from threading import Thread, active_count
@@ -49,7 +49,8 @@ class docking_sequence:
 
     def listener(self):
         # Subscribers for lidar and odom
-        dock_sub = rospy.Subscriber("/r2000_node/scan", LaserScan, self.callBack, queue_size=1)
+        print("[LISTENER]")
+        dock_sub = rospy.Subscriber("/scan", LaserScan, self.callBack, queue_size=1)
         pose_sub = rospy.Subscriber("/odom", Odometry, self.update_pose, queue_size=1)
 
         rospy.spin()
@@ -225,22 +226,23 @@ class docking_sequence:
         self.marker_publisher.publish(marker)
 
     def move_to_dest(self):
-        # Move to inital destination
         self.slope = (self.pt2.point.y - self.pt1.point.y)/(self.pt2.point.x - self.pt1.point.x)
 
         # destination to line up
         self.sol = self.calculate_point(self.new.point.x, self.new.point.y, self.slope, self.radius)
-        # print(self.sol)
+        print(self.sol)
+        x = self.sol[0]
+        y = self.sol[1]
 
-        if (self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[0][0], self.sol[0][1]) < self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[1][0], self.sol[1][1])):
-            x = self.sol[0][0]
-            y = self.sol[0][1]
-            # print( "cabbage"
+        # if (self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[0][0], self.sol[0][1]) < self.distance(self.pose.pose.position.x, self.pose.pose.position.y, self.sol[1][0], self.sol[1][1])):
+        #     x = self.sol[0][0]
+        #     y = self.sol[0][1]
+        #     # print( "cabbage"
 
-        else:
-            x = self.sol[1][0]
-            y = self.sol[1][1]
-            # print( "celery"
+        # else:
+        #     x = self.sol[1][0]
+        #     y = self.sol[1][1]
+        #     # print( "celery"
         
         print( "Destination : ", x, y)
         self.show_point_in_rviz(self.new.point.x, self.new.point.y, x, y)
@@ -254,9 +256,10 @@ class docking_sequence:
         if result:
             self.flag2 = True
             print( "move done")
-            return result
+            return 
 
     def callBack(self, data):
+        print("[CALLBACK]")
         range1 = []
         range2 = []
         index1 = []
@@ -270,10 +273,10 @@ class docking_sequence:
         lidarArray = np.array(data.intensities, dtype=np.float32)   # Intensities
         rangeArray = np.array(data.ranges, dtype=np.float32)    # Ranges
         for index, value in enumerate(lidarArray):
-            if self.flag3 == False and value > 750 and value < 1250: # Intensity range
+            if self.flag3 == False and value > 0.5 and value < 1.5: # Intensity range
                 indexArray.append(index)
 
-            if self.flag3 == True and value > 750 and value < 1250 and (index < 200 or index > 1600): # Intensity range
+            if self.flag3 == True and value > 0.5 and value < 1.5 and (index < 200 or index > 1600): # Intensity range
                 indexArray.append(index)
 
         # Checking array for gaps
@@ -388,6 +391,8 @@ class docking_sequence:
 
 def main():
     rospy.init_node('charging_dock')
+
+    print("[STARTING]")
     
     while not rospy.is_shutdown():
         try:

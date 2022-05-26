@@ -8,7 +8,7 @@ from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PointStamped, Point, Twist, Pose, PoseStamped
 from visualization_msgs.msg import Marker
-from sympy import symbols, Eq, solve
+# from sympy import symbols, Eq, solve
 import actionlib
 #import threading as thread
 from threading import Thread, active_count
