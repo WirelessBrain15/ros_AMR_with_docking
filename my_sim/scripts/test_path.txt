@@ -1,0 +1,45 @@
+header: 
+  seq: 0
+  stamp: 7358.521000000
+  frame_id: p
+pose: 
+  position: 
+    x: 1.44833
+    y: -0.688018
+    z: 0
+  orientation: 
+    x: 0
+    y: 0
+    z: 0.986752
+    w: 0.162236
+
+header: 
+  seq: 0
+  stamp: 7359.930000000
+  frame_id: p
+pose: 
+  position: 
+    x: 1.467
+    y: -0.697698
+    z: 0
+  orientation: 
+    x: 0
+    y: 0
+    z: 0.601331
+    w: 0.799
+
+header: 
+  seq: 0
+  stamp: 7360.843000000
+  frame_id: p
+pose: 
+  position: 
+    x: 1.47218
+    y: -0.708741
+    z: 0
+  orientation: 
+    x: 0
+    y: 0
+    z: 0.136789
+    w: 0.9906
+
