@@ -1,0 +1,49 @@
+<launch>
+
+
+ <arg name="recording" default="false"/> --> 
+
+ <arg name="world" default="$(find my_sim)/world/test_world_backup.world"/> 
+ <include file="$(find gazebo_ros)/launch/empty_world.launch">
+  <arg name="world_name" value= "$(arg world)"/> 
+ <!-- <arg name="use_sim_time" value= "$(arg use_sim_time)"/> --> 
+  </include>
+  
+  
+  <include file="$(find my_sim)/launch/spawn_urdf.launch"> 
+ 
+   </include> 
+   
+  <node
+    name="joint_state_publisher"
+    pkg="joint_state_publisher"
+    type="joint_state_publisher"/>
+   
+   
+   <node
+    name="robot_state_publisher"
+    pkg="robot_state_publisher"
+    type="robot_state_publisher">
+    <remap from="/joint_states" to="joint_states" /> 
+    </node> 
+
+   <!--<node
+    name="amcl"
+    pkg="amcl"
+    type="amcl">
+    </node> -->
+
+
+  <!--<node pkg="sensor_node_pkg" type="sensor_node_type" name="sensor_node_name" output="screen">
+    <param name="sensor_param" value="param_value" />
+ </node>
+ <node pkg="odom_node_pkg" type="odom_node_type" name="odom_node" output="screen">
+    <param name="odom_param" value="param_value" />
+ </node>
+ <node pkg="transform_configuration_pkg" type="transform_configuration_type" name="transform_configuration_name" output="screen">
+    <param name="transform_configuration_param" value="param_value" />
+ </node>-->
+
+
+
+</launch> 
