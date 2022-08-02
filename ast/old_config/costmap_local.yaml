@@ -1,0 +1,24 @@
+local_costmap:
+ 
+  global_frame: odom
+  static_map: false
+  rolling_window: true
+  update_frequency: 10.0
+  publish_frequency: 10.0
+  plugins:
+  
+    
+    - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+#    - {name: kinect_obstacle, type: "costmap_2d::ObstacleLayer"}
+#    - {name: sonar_layer,   type: "range_sensor_layer::RangeSensorLayer"}
+    - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+   
+    
+    
+        
+
+ 
+
+  
+
+

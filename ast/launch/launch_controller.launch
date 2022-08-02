@@ -1,0 +1,11 @@
+<launch>
+<!-- <include file = "$(find rosserial_python)/launch/serial.launch"/> -->
+<!-- <include file = "$(find ast)/launch/realsense.launch"/> -->
+<!-- <include file = "$(find ast)/launch/cloud_to_laser.launch"/> -->
+<!-- <include file = "$(find laser_filters)/examples/shadow_filter_example.launch"/> --> 
+<include file = "$(find ast)/launch/robot_local.launch"/> 
+<include file = "$(find ast)/launch/auto_localization_pf.launch"/>
+<!-- <include file = "$(find ast)/launch/magwick.launch"/>  -->
+<!-- <include file = "$(find initial_pose)/launch/initial_pose.launch"/> -->
+</launch>
+

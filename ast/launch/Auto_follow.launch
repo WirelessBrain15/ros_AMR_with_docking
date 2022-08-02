@@ -1,0 +1,6 @@
+<launch>
+    <include file = "$(find ast)/launch/auto_localization_pf.launch"/> 
+    <include file = "$(find differential)/launch/lrwheel_pid.launch"/>
+    <include file = "$(find follow_waypoints)/launch/follow_waypoints.launch"/>
+    <node name = "wav" pkg = "ast" type = "start_j.py" output = "screen"/>    
+</launch>

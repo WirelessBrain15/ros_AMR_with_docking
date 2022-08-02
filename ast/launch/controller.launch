@@ -1,0 +1,68 @@
+<launch>
+
+<include file ="$(find urdf_pf)/launch/display.launch"/>
+
+
+
+ <include file ="$(find rplidar_ros)/launch/rplidar.launch"/> 
+
+            
+
+
+
+
+
+<node name="diff_tf" pkg="differential_drive" type="diff_tf.py" output="screen"/>
+<node name="twist_to_motors" pkg="differential_drive" type="twist_to_motors.py" output="screen"/>
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<node name="lpid_velocity" pkg="differential_drive" type="pid_velocity.py" output="screen">
+      	<remap from="wheel" to="nano_l/lwheel"/>
+      	<remap from="motor_cmd" to="nano_l/left_wheel_speed"/>
+     	<remap from="wheel_vtarget" to="lwheel_vtarget"/>
+      	<remap from="wheel_vel" to="lwheel_vel"/>
+    	<rosparam param="Kp">300</rosparam> 
+      	<rosparam param="Ki">300</rosparam>
+      	<rosparam param="Kd">1</rosparam>
+      	<rosparam param="out_min">-255</rosparam>
+      	<rosparam param="out_max">255</rosparam>
+      	<rosparam param="rate">5</rosparam>
+      	<rosparam param="timeout_ticks">4</rosparam>
+     	<rosparam param="rolling_pts">5</rosparam>   
+
+  </node>
+
+  
+
+
+
+<node name="rpid_velocity" pkg="differential_drive" type="pid_velocity.py" output="screen">
+      <remap from="wheel" to="nano_r/rwheel"/>
+      <remap from="motor_cmd" to="nano_r/right_wheel_speed"/>
+      <remap from="wheel_vtarget" to="rwheel_vtarget"/>
+      <remap from="wheel_vel" to="rwheel_vel"/>
+      <rosparam param="Kp">300</rosparam>
+      <rosparam param="Ki">300</rosparam>
+      <rosparam param="Kd">1</rosparam>
+      <rosparam param="out_min">-255</rosparam>
+      <rosparam param="out_max">255</rosparam>
+      <rosparam param="rate">5</rosparam>
+      <rosparam param="timeout_ticks">4</rosparam>
+      <rosparam param="rolling_pts">5</rosparam>  
+</node>
+
+</launch>

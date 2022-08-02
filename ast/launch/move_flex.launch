@@ -1,0 +1,14 @@
+<launch>
+
+ <node  pkg =  "mbf_costmap_nav" type = "mbf_costmap_nav" name ="move_base_flex" output = "screen" >
+ <rosparam file = "$(find ast)/config/new_config/controller.yaml" command = "load"  />
+ <rosparam file = "$(find ast)/config/new_config/planner.yaml" command = "load" />
+ <rosparam file = "$(find ast)/config/new_config/recovery_behaviors.yaml" command = "load"  />
+ <rosparam file  = "$(find ast)/config/new_config/common_costmap_params.yaml" command = 'load' ns = 'global_costmap' />
+ <rosparam file  = "$(find ast)/config/new_config/common_costmap_params.yaml" command = 'load' ns = 'local_costmap'  />
+ <rosparam file  = "$(find ast)/config/new_config/local_costmap_params.yaml"  command = 'load' />
+ <rosparam file  = "$(find ast)/config/new_config/global_costmap_params.yaml" command = 'load' />
+      
+</node>
+
+</launch>  

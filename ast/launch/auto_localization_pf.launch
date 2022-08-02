@@ -1,0 +1,33 @@
+<launch>
+    <include file = "$(find ast)/launch/controller_pf.launch"/> 
+     <include file = "$(find ast)/launch/realsense.launch"/> 
+   <include file = "$(find ast)/launch/robot_local.launch"/> 
+    
+    <arg name= "map_file" default= "/home/aspagteq/catkin_ws/src/ast/map/new_map.yaml"/>  
+    <node name="map_server" type="map_server" pkg="map_server" args="$(arg map_file)"/> 
+    <include file="$(find amcl)/examples/amcl_diff.launch"/>  
+   
+   
+    <arg name="base_global_planner" default="global_planner/GlobalPlanner" />                        <!-- navfn/NavfnROS  ,gobal_planner/GlobalPlanner -->
+    <arg name="base_local_planner" default="dwa_local_planner/DWAPlannerROS"/>       <!-- dwa_local_planner/DWAPlannerROS -->
+                                                                                             <!-- base_local_planner/TrajectoryPlannerROS -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <remap from="/odom" to="/odometry/filtered"/>  
+
+    <param name="base_global_planner" value="$(arg base_global_planner)"/>
+    <param name="base_local_planner" value="$(arg base_local_planner)"/>
+    <rosparam file="$(find ast)/config/new_planner.yaml" command="load"/>
+
+    
+    <rosparam file="$(find ast)/config/costmap_common.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find ast)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find ast)/config/costmap_local.yaml" command="load"   />
+    <param name="local_costmap/width" value="2.0"/>
+    <param name="local_costmap/height" value="2.0"/>
+    <rosparam file="$(find ast)/config/costmap_global_static.yaml" command="load"  />
+
+    
+   
+</node>    
+<!--	<node pkg="rviz" type="rviz" name="rviz"  args="-d $(find ast)/rviz/basic.rviz" /> -->
+</launch>

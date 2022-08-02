@@ -1,0 +1,82 @@
+footprint: 
+  - 
+    - 0.125
+    - 0.275
+  - 
+    - 0.125
+    - -0.275
+  - 
+    - -0.515
+    - -0.275
+  - 
+    - -0.515
+    - 0.275
+
+footprint_padding: 0.02
+inflation_layer: 
+  cost_scaling_factor: 3.0
+  inflation_radius: 1.2
+obstacle_range: 3.5
+obstacle_layer: 
+  laser: 
+    clearing: true
+    data_type: LaserScan
+    inf_is_valid: true
+    marking: true
+    topic: r2000_node/scan
+  realsense:
+    clearing: false
+    data_type: LaserScan
+    marking: true
+    topic: realsense_scan
+    max_obstacle_height: 5.0
+   
+    inf_is_valid: true
+ 
+  observation_sources:  laser    #reallsense
+publish_frequency: 3.0
+raytrace_range: 3.0
+resolution: 0.05
+robot_base_frame: base_link
+robot_radius: 0
+sonar_layer:
+  ns: ""
+  topics: ["/mega_pf/ir_arr_data"]
+  no_readings_timeout: 0.0
+  clear_threshold: 0.01
+  mark_threshold:  0.7
+  clear_on_max_reading: true
+
+
+#ultrasonic_layer:
+#  ns: ""
+#  topics: ["/mega_pf/ultr_sonic_data"]
+#  no_readings_timeout: 0.0
+#  clear_threshold: 0.01
+#  mark_threshold:  0.5
+#  clear_on_max_reading: true
+
+costmap_prohibition_layer:
+
+    prohibition_areas:
+      - [[6.113525867462158,-0.7095401287078857],
+        [6.017104148864746,10.20643424987793]]
+        
+     
+
+  
+#static:
+#  map_topic: map
+#  subscribe_to_updates: true
+transform_tolerance: 0.5
+update_frequency: 10.0
+static_layer: {enabled: true}
+#static: {enabled: true}
+
+
+#kinect_obstacle:
+  
+    
+
+
+

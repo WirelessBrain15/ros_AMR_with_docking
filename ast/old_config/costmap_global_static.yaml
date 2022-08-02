@@ -1,0 +1,28 @@
+global_costmap:
+
+  global_frame: map
+  width: 5.0
+  height: 5.0
+  #robot_base_frame: base_link
+  rolling_window: false
+  static_map: true
+  track_unknown_space: true
+  update_frequency: 2.0
+  publish_frequency: 1.0
+  plugins:
+     - {name: static_layer, type: "costmap_2d::StaticLayer"}  
+     - {name: inflation_layer, type: "costmap_2d::InflationLayer"} 
+#    - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+#    - {name: sonar_layer,   type: "range_sensor_layer::RangeSensorLayer"}
+     - {name: costmap_prohibition_layer, type: "costmap_prohibition_layer_namespace::CostmapProhibitionLayer"} 
+   
+   
+#    - {name: kinect_obstacle, type: "costmap_2d::ObstacleLayer"}
+    
+   
+    
+    
+   
+    
+    
+  

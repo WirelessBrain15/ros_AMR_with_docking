@@ -1,0 +1,23 @@
+<launch>
+
+<include file ="$(find ast)/launch/main_controller.launch"/>
+<include file ="$(find urdf_newpf)/launch/display.launch"/>
+<include file = "$(find ast)/launch/realsense.launch"/> 
+
+
+
+
+<include file ="$(find pepperl_fuchs_r2000)/launch/r2000.launch"/>         
+<include file = "$(find ast)/launch/robot_local.launch"/>
+                                                                                                    
+
+
+
+
+<node name="diff_tf" pkg="differential_drive" type="diff_tf.py" /> 
+<node name="twist_to_motors" pkg="differential_drive" type="twist_to_motors.py" output="screen"/>
+<include file = "$(find differential)/launch/lrwheel_pid.launch"/>
+<include file = "$(find gmapping)/launch/slam_gmapping.launch"/>
+<node pkg="rviz" type="rviz" name="rviz"  args="-d $(find ast)/rviz/mapping.rviz" />
+</launch>
+
