@@ -1,4 +1,4 @@
-# ros_Navigation_with_docking
+# ros_AMR_with_docking
 
 Contain urdf of AMR with navigation modules and config.
 
