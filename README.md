@@ -10,3 +10,7 @@ Contain urdf of AMR with navigation modules and config.
 
 -> docking algo works with 1 2D lidar and 2 reflective strips 60cm apart and can successfully dock with 99% accuracy.
 
+
+
+I apologize for the messy codes, I am still learning and mainly use this as my personal storage. My final codes are put in company repo and no available for public use.
+
